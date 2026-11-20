@@ -1,0 +1,257 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101322">
+<title>My AI Video Studio</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101322;color:#f5f6ff;font-family:Arial,sans-serif}
+header{padding:20px;background:#191e32;border-bottom:1px solid #303750}
+.brand{font-size:22px;font-weight:bold;color:#a78bfa}
+header p{color:#aeb5ca;font-size:13px}
+main{max-width:900px;margin:auto;padding:18px}
+.card{background:#1b2137;border:1px solid #343c59;border-radius:15px;padding:17px;margin-bottom:17px}
+h2{font-size:18px;margin-top:0}
+h3{font-size:15px}
+label{display:block;font-size:13px;color:#c5cbe0;margin:13px 0 7px}
+input,textarea,select{width:100%;padding:13px;background:#101628;color:white;border:1px solid #414966;border-radius:9px;font-size:15px}
+textarea{min-height:120px;resize:vertical}
+button{background:#8062ef;color:white;border:0;padding:12px 16px;border-radius:9px;font-weight:bold;font-size:14px;cursor:pointer;margin:5px 3px 5px 0}
+button.secondary{background:#303951}
+button.danger{background:#a33b52}
+button:disabled{opacity:.5}
+.actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
+.scene{background:#12182a;border:1px solid #3a4260;padding:13px;border-radius:10px;margin:10px 0}
+.scene p{color:#c6cce0;line-height:1.5;font-size:14px}
+.small{font-size:12px;color:#9da7c0}
+.tag{display:inline-block;background:#30294e;color:#c8b8ff;padding:5px 9px;border-radius:20px;font-size:11px}
+#status{color:#9ee6ba;font-size:13px;min-height:20px}
+footer{text-align:center;padding:25px;color:#929ab0;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">✦ MY AI VIDEO STUDIO</div>
+  <p>Your personal cartoon and video creation workspace</p>
+</header>
+
+<main>
+  <section class="card">
+    <span class="tag">YOUR CREATIVE WORKSPACE</span>
+    <h2>Welcome to your studio 🎬</h2>
+    <p class="small">Create cartoon stories, plan scenes and prepare videos for your social media.</p>
+    <div class="actions">
+      <button onclick="newProject()">＋ New project</button>
+      <button class="secondary" onclick="saveProject()">Save project</button>
+    </div>
+    <div id="status"></div>
+  </section>
+
+  <section class="card">
+    <h2>1. Create your story</h2>
+    <label>Project name</label>
+    <input id="projectName" value="My First Cartoon Story" placeholder="Enter project name">
+
+    <label>Choose cartoon style</label>
+    <select id="style">
+      <option>Stickman cartoon</option>
+      <option>3D cartoon</option>
+      <option>2D cartoon</option>
+      <option>African animation</option>
+      <option>Funny classroom cartoon</option>
+    </select>
+
+    <label>Video format</label>
+    <select id="format">
+      <option value="9:16">9:16 - TikTok, Reels and Shorts</option>
+      <option value="16:9">16:9 - YouTube landscape</option>
+      <option value="1:1">1:1 - Square video</option>
+    </select>
+
+    <label>Write or paste your story</label>
+    <textarea id="story" placeholder="Example: A funny stickman student enters the classroom late. The teacher asks him why he is late..."></textarea>
+
+    <div class="actions">
+      <button onclick="createScenes()">Create my scenes</button>
+      <button class="secondary" onclick="clearStory()">Clear story</button>
+    </div>
+    <p class="small">This first version organizes your story into scenes. AI generation will be connected later.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your video scenes</h2>
+    <p class="small">Edit your scenes and prepare your cartoon storyboard.</p>
+    <div id="scenes">
+      <p class="small">Your scenes will appear here after you create a story.</p>
+    </div>
+    <div class="actions">
+      <button class="secondary" onclick="addScene()">＋ Add scene</button>
+      <button onclick="downloadStory()">Download storyboard</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Video creation tools</h2>
+    <div class="scene">
+      <h3>🖼️ AI Cartoon Image Creator</h3>
+      <p>Coming soon: Create characters and cartoon backgrounds.</p>
+      <span class="tag">AI connection needed</span>
+    </div>
+    <div class="scene">
+      <h3>🎞️ Animation Studio</h3>
+      <p>Coming soon: Bring your cartoon characters to life.</p>
+      <span class="tag">AI connection needed</span>
+    </div>
+    <div class="scene">
+      <h3>🎙️ AI Voice Generator</h3>
+      <p>Coming soon: Give your characters voices and narration.</p>
+      <span class="tag">Voice engine needed</span>
+    </div>
+    <div class="scene">
+      <h3>✂️ Video Editor</h3>
+      <p>Coming soon: Join clips, add subtitles, sound and transitions.</p>
+      <span class="tag">Editing engine needed</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4. Your projects</h2>
+    <p class="small">Save your current storyboard in this browser.</p>
+    <button class="secondary" onclick="loadProject()">Load saved project</button>
+    <button class="danger" onclick="deleteProject()">Delete saved project</button>
+  </section>
+</main>
+
+<footer>MY AI VIDEO STUDIO · Version 1.0 · Built for creativity</footer>
+
+<script>
+let scenes=[];
+
+function message(text){
+ document.getElementById("status").textContent=text;
+}
+
+function createScenes(){
+ const story=document.getElementById("story").value.trim();
+ if(!story){message("Please write a story first.");return;}
+ const parts=story.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[story];
+ scenes=parts.map((part,i)=>({
+  title:"Scene "+(i+1),
+  description:part.trim()
+ }));
+ renderScenes();
+ message(scenes.length+" scenes created successfully!");
+}
+
+function renderScenes(){
+ const area=document.getElementById("scenes");
+ area.innerHTML="";
+ if(!scenes.length){
+  area.textContent="No scenes yet.";
+  return;
+ }
+ scenes.forEach((scene,i)=>{
+  const box=document.createElement("div");
+  box.className="scene";
+  const title=document.createElement("input");
+  title.value=scene.title;
+  title.setAttribute("aria-label","Scene title");
+  title.oninput=()=>scene.title=title.value;
+  const desc=document.createElement("textarea");
+  desc.value=scene.description;
+  desc.setAttribute("aria-label","Scene description");
+  desc.oninput=()=>scene.description=desc.value;
+  const remove=document.createElement("button");
+  remove.className="danger";
+  remove.textContent="Delete scene";
+  remove.onclick=()=>{scenes.splice(i,1);renderScenes();};
+  box.append(title,desc,remove);
+  area.appendChild(box);
+ });
+}
+
+function addScene(){
+ scenes.push({title:"Scene "+(scenes.length+1),description:"Write your scene here."});
+ renderScenes();
+}
+
+function saveProject(){
+ const data={
+  name:document.getElementById("projectName").value,
+  style:document.getElementById("style").value,
+  format:document.getElementById("format").value,
+  story:document.getElementById("story").value,
+  scenes:scenes
+ };
+ try{
+  localStorage.setItem("myVideoStudioProject",JSON.stringify(data));
+  message("Project saved on this device!");
+ }catch(e){message("Could not save this project in your browser.");}
+}
+
+function loadProject(){
+ try{
+  const raw=localStorage.getItem("myVideoStudioProject");
+  if(!raw){message("No saved project found.");return;}
+  const data=JSON.parse(raw);
+  document.getElementById("projectName").value=data.name||"";
+  document.getElementById("style").value=data.style||"Stickman cartoon";
+  document.getElementById("format").value=data.format||"9:16";
+  document.getElementById("story").value=data.story||"";
+  scenes=Array.isArray(data.scenes)?data.scenes:[];
+  renderScenes();
+  message("Your project has been loaded!");
+ }catch(e){message("Unable to load saved project.");}
+}
+
+function deleteProject(){
+ if(confirm("Delete your saved project from this browser?")){
+  localStorage.removeItem("myVideoStudioProject");
+  message("Saved project deleted.");
+ }
+}
+
+function downloadStory(){
+ const content=[
+  "MY AI VIDEO STUDIO",
+  "Project: "+document.getElementById("projectName").value,
+  "Style: "+document.getElementById("style").value,
+  "Format: "+document.getElementById("format").value,
+  "",
+  "STORY:",
+  document.getElementById("story").value,
+  "",
+  "SCENES:",
+  ...scenes.map((s,i)=>"\n"+(i+1)+". "+s.title+"\n"+s.description)
+ ].join("\n");
+ const file=new Blob([content],{type:"text/plain"});
+ const url=URL.createObjectURL(file);
+ const link=document.createElement("a");
+ link.href=url;
+ link.download="my-cartoon-story.txt";
+ link.click();
+ URL.revokeObjectURL(url);
+ message("Storyboard downloaded!");
+}
+
+function clearStory(){
+ document.getElementById("story").value="";
+ scenes=[];
+ renderScenes();
+ message("Story cleared.");
+}
+
+function newProject(){
+ if(!confirm("Start a new project? Save your current work first if needed."))return;
+ document.getElementById("projectName").value="New Cartoon Project";
+ document.getElementById("story").value="";
+ scenes=[];
+ renderScenes();
+ message("New project started.");
+}
+</script>
+</body>
+</html>
